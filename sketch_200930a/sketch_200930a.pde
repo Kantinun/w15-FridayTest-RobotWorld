@@ -34,8 +34,7 @@ class Robot{
   void draw(){
     fill(255,255,0);
     noStroke();
-    ellipseMode(CENTER);
-    ellipse(x,y,sizeX,sizeY);
+    triangle(x,y-(sizeY/2),x-(sizeX/2),y+(sizeY/2),x+(sizeX/2),y+(sizeY/2));
   }
   void move(int  key){
      if(key== UP){y -= velY;}
