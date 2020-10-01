@@ -1,8 +1,19 @@
 class Wall{
   int x,y;
-  Wall(){
+  float sizeX,sizeY;
+  
+  Wall(int co,int ro){
+    x = (int(random(0,co))*width/co)+width/(co*2);
+    y = (int(random(1,ro))*height/ro)+height/(ro*2);
+    sizeX=width/co;
+    sizeY=height/ro;
   }
+  
   void draw(){
+    fill(150,255,150);
+    noStroke();
+    rectMode(CENTER);
+    rect(x,y,sizeX,sizeY);
   }
 }
 
@@ -37,7 +48,15 @@ class Robot{
      if(y>height-(height/(w.row*2))){ y = height-(height/(w.row*2));}
   }
   boolean checkWall(Wall wall){
-    return true;
+    if(dist(x,y,wall.x,wall.y)==0){return true;}
+    else{return false;}
+  }
+  
+  void bounce(int key){
+    if(key== UP){y += velY;}
+    if(key== DOWN){y -= velY;}
+    if(key== LEFT){x += velX;}
+    if(key== RIGHT){x -= velX;}
   }
 }
 
@@ -60,6 +79,11 @@ class Target{
     rectMode(CENTER);
     rect(x,y,0.25*width/w.column,0.25*height/w.row);
   }
+  
+  boolean checkWall(Wall wall){
+    if(dist(x,y,wall.x,wall.y)==0){return true;}
+    else{return false;}
+  }
 }
 
 class World{
@@ -67,8 +91,9 @@ class World{
   Target t;
   Robot r;
   int robotDelay,maxRobotDelay;
+  ArrayList<Wall> wall = new ArrayList<Wall>();
   
-  World(int co,int ro){
+  World(int co,int ro,int numWall){
     column = co;
     row =ro;
     maxRobotDelay = 7;
@@ -77,6 +102,10 @@ class World{
     r = new Robot(width/(co*2),height/(row*2));
     
     t = new Target(column,row);
+    
+    for(int  i=0;i<numWall;i++){
+      wall.add(new Wall(column,row));
+    }
   }
   
   void draw(){
@@ -91,14 +120,24 @@ class World{
   }
   
   void update(){
+    for(Wall temp:wall){
+      if(t.checkWall(temp)){t.randomPosition();}
+    }
     t.draw();
     
     r.draw();
+    
+    for(Wall wall:wall){
+      wall.draw();
+    }
     
     if(keyPressed&&robotDelay>maxRobotDelay){
       if(key==CODED){
         r.move(keyCode);
         robotDelay =0;
+        for(Wall tempWall:wall){
+          if(r.checkWall(tempWall)){r.bounce(keyCode);}
+        }
       }
     }
     robotDelay++;
@@ -113,7 +152,7 @@ World w;
 
 void setup(){
   size(600,600);
-  w = new World(6,6);
+  w = new World(6,6,5);
 }
 void draw(){
   background(0);
