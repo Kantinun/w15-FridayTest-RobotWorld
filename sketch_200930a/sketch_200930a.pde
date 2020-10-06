@@ -34,7 +34,7 @@ class Robot{
   }
   
   void draw(){
-    strokeWeight(8);
+    strokeWeight((sizeX+sizeY)*0.2);
     stroke(255);
     if(abs(angle)==360){angle =0;}
     if(angle == 0){
@@ -145,9 +145,13 @@ class World{
   Robot r;
   InputProcessor input;
   int robotDelay,maxRobotDelay;
+  PImage imgSave;
+  PImage imgLoad;
   ArrayList<Wall> wall = new ArrayList<Wall>();
   
   World(int co,int ro,int numWall){
+    imgSave = loadImage("save.png");
+    imgLoad = loadImage("load.png");
     column = co;
     row =ro;
     maxRobotDelay = 7;
@@ -173,6 +177,39 @@ class World{
     for(int i=1;i<row;i++){  // draw row
       stroke(0,0,255);
       line(0,i*height/row,width,i*height/row);
+    }
+    
+    imageMode(CENTER);
+    image(imgSave, width-25,25,40,40);
+    image(imgLoad, width-60,25,35,35);
+  }
+  
+  void saveWorld(){
+    String[] save  = {str(column),str(row),str(r.x),str(r.y),str(r.angle),str(t.x),str(t.y)};
+    for(Wall temp:wall){
+      save = append(save, str(temp.x)+" "+str(temp.y));
+    }
+    saveStrings("save.txt", save);
+  }
+  
+  void loadWorld(){
+    String[] data = loadStrings("save.txt");
+    println(data.length);
+    column = int(data[0]);
+    row = int(data[1]);
+    r.x = int(data[2]);
+    r.y = int(data[3]);
+    r.angle = int(data[4]);
+    t.x = int(data[5]);
+    t.y = int(data[6]);
+    wall = new ArrayList<Wall>();
+    int index = 0;
+    for(int i =7;i<data.length;i++){
+      String[] temp = split(data[i]," ");
+        wall.add(new Wall(column, row));
+        wall.get(index).x = int(temp[0]);
+        wall.get(index).y = int(temp[1]); 
+        index++;
     }
   }
   
@@ -221,12 +258,18 @@ class InputProcessor{
 }
 
 World w;
+String[] data;
 void setup(){
   size(600,600);
-  w = new World(6,6,5);
+  data = loadStrings("world.txt");
+  w = new World(int(data[0]),int(data[1]),int(data[2]));
 }
 void draw(){
   background(0);
-  w.draw();
   w.update();
+  w.draw();
+}
+void mouseClicked(){
+  if(dist(mouseX,mouseY,width-25,25)<20){w.saveWorld();}
+  if(dist(mouseX,mouseY,width-60,25)<12.5){w.loadWorld();}
 }
