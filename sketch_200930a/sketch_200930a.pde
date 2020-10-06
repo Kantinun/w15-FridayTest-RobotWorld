@@ -129,8 +129,18 @@ class Target{
   void draw(){
     fill(255,0,0);
     noStroke();
-    rectMode(CENTER);
-    rect(x,y,0.25*width/w.column,0.25*height/w.row);
+    polygon(x,y,0.25*width/w.column,6); 
+  }
+  
+  void polygon(float x, float y, float radius, int npoints) {
+  float angle = TWO_PI / npoints;
+  beginShape();
+    for (float a = 0; a < TWO_PI; a += angle) {
+      float sx = x + cos(a) * radius;
+      float sy = y + sin(a) * radius;
+      vertex(sx, sy);
+    }
+    endShape(CLOSE);
   }
   
   boolean checkWall(Wall wall){
