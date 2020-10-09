@@ -204,7 +204,7 @@ class World{
   
   void loadWorld(){
     String[] checkpoint = loadStrings("save.txt");
-    println(checkpoint.length);
+
     column = int(checkpoint[0]);
     row = int(checkpoint[1]);
     r.x = int(checkpoint[2]);
@@ -272,11 +272,13 @@ void setup(){
   size(600,600);
   w = new World(6,6,5);
 }
+
 void draw(){
   background(0);
   w.update();
   w.draw();
 }
+
 void mouseClicked(){
   if(dist(mouseX,mouseY,width-25,25)<20){w.saveWorld();}
   if(dist(mouseX,mouseY,width-60,25)<12.5){w.loadWorld();}
