@@ -195,27 +195,26 @@ class World{
   }
   
   void saveWorld(){
-    String[] save  = {str(column),str(row),str(r.x),str(r.y),str(r.angle),str(t.x),str(t.y)};
+    String[] checkpoint  = {str(column),str(row),str(r.x),str(r.y),str(r.angle),str(t.x),str(t.y)};
     for(Wall temp:wall){
-      save = append(save, str(temp.x)+" "+str(temp.y));
+      checkpoint = append(checkpoint, str(temp.x)+" "+str(temp.y));
     }
-    saveStrings("save.txt", save);
+    saveStrings("save.txt", checkpoint);
   }
   
   void loadWorld(){
-    String[] data = loadStrings("save.txt");
-    println(data.length);
-    column = int(data[0]);
-    row = int(data[1]);
-    r.x = int(data[2]);
-    r.y = int(data[3]);
-    r.angle = int(data[4]);
-    t.x = int(data[5]);
-    t.y = int(data[6]);
+    String[] checkpoint = loadStrings("save.txt");
+    column = int(checkpoint[0]);
+    row = int(checkpoint[1]);
+    r.x = int(checkpoint[2]);
+    r.y = int(checkpoint[3]);
+    r.angle = int(checkpoint[4]);
+    t.x = int(checkpoint[5]);
+    t.y = int(checkpoint[6]);
     wall = new ArrayList<Wall>();
     int index = 0;
-    for(int i =7;i<data.length;i++){
-      String[] temp = split(data[i]," ");
+    for(int i =7;i<checkpoint.length;i++){
+      String[] temp = split(checkpoint[i]," ");
         wall.add(new Wall(column, row));
         wall.get(index).x = int(temp[0]);
         wall.get(index).y = int(temp[1]); 
@@ -268,11 +267,9 @@ class InputProcessor{
 }
 
 World w;
-String[] data;
 void setup(){
   size(600,600);
-  data = loadStrings("world.txt");
-  w = new World(int(data[0]),int(data[1]),int(data[2]));
+  w = new World(6,6,5);
 }
 void draw(){
   background(0);
