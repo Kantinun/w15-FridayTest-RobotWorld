@@ -23,14 +23,14 @@ class Robot{
   int velX,velY;
   int angle;
   
-  Robot(int posX,int posY){
-    x = posX;
-    y =posY;
+  Robot(int co,int ro,int tx, int ty){
+    x = tx;
+    y =ty;
     angle =0;
-    sizeX = posX*.5;
-    sizeY = posY*.5;
-    velX = posX*2;
-    velY = posY*2;
+    sizeX = (width/co)/2;
+    sizeY = (height/ro)/2;
+    velX = width/co;
+    velY = height/ro;
   }
   
   void draw(){
@@ -95,6 +95,8 @@ class Robot{
     else{return false;}
   }
   
+
+  
   void bounce(int key){
     if(key == CODED){
     if(keyCode == DOWN){
@@ -129,18 +131,8 @@ class Target{
   void draw(){
     fill(255,0,0);
     noStroke();
-    polygon(x,y,0.25*width/w.column,6); 
-  }
-  
-  void polygon(float x, float y, float radius, int npoints) {
-  float angle = TWO_PI / npoints;
-  beginShape();
-    for (float a = 0; a < TWO_PI; a += angle) {
-      float sx = x + cos(a) * radius;
-      float sy = y + sin(a) * radius;
-      vertex(sx, sy);
-    }
-    endShape(CLOSE);
+    rectMode(CENTER);
+    rect(x,y,0.25*width/w.column,0.25*height/w.row);
   }
   
   boolean checkWall(Wall wall){
@@ -150,10 +142,10 @@ class Target{
 }
 
 class World{
-  int column,row;
+  int column,row,snakeSize;
   Target t;
-  Robot r;
   InputProcessor input;
+  Snake s;
   int robotDelay,maxRobotDelay;
   PImage imgSave;
   PImage imgLoad;
@@ -167,7 +159,7 @@ class World{
     maxRobotDelay = 7;
     robotDelay = maxRobotDelay;
     
-    r = new Robot(width/(co*2),height/(row*2));
+    s = new Snake(column,row);
     
     t = new Target(column,row);
     
@@ -194,37 +186,34 @@ class World{
     image(imgLoad, width-60,25,35,35);
   }
   
-  void saveWorld(){
-    String[] checkpoint  = {str(column),str(row),str(r.x),str(r.y),str(r.angle),str(t.x),str(t.y)};
-    for(Wall temp:wall){
-      checkpoint = append(checkpoint, str(temp.x)+" "+str(temp.y));
-    }
-    saveStrings("save.txt", checkpoint);
-  }
+  //void saveWorld(){
+  //  String[] save  = {str(column),str(row),str(r.x),str(r.y),str(r.angle),str(t.x),str(t.y)};
+  //  for(Wall temp:wall){
+  //    save = append(save, str(temp.x)+" "+str(temp.y));
+  //  }
+  //  saveStrings("save.txt", save);
+  //}
   
-  void loadWorld(){
-    String[] checkpoint = loadStrings("save.txt");
-<<<<<<< HEAD
-=======
-
->>>>>>> e43d0f6c7f3acd4a3cd418510389b4e415cb60ee
-    column = int(checkpoint[0]);
-    row = int(checkpoint[1]);
-    r.x = int(checkpoint[2]);
-    r.y = int(checkpoint[3]);
-    r.angle = int(checkpoint[4]);
-    t.x = int(checkpoint[5]);
-    t.y = int(checkpoint[6]);
-    wall = new ArrayList<Wall>();
-    int index = 0;
-    for(int i =7;i<checkpoint.length;i++){
-      String[] temp = split(checkpoint[i]," ");
-        wall.add(new Wall(column, row));
-        wall.get(index).x = int(temp[0]);
-        wall.get(index).y = int(temp[1]); 
-        index++;
-    }
-  }
+  //void loadWorld(){
+  //  String[] data = loadStrings("save.txt");
+  //  println(data.length);
+  //  column = int(data[0]);
+  //  row = int(data[1]);
+  //  r.x = int(data[2]);
+  //  r.y = int(data[3]);
+  //  r.angle = int(data[4]);
+  //  t.x = int(data[5]);
+  //  t.y = int(data[6]);
+  //  wall = new ArrayList<Wall>();
+  //  int index = 0;
+  //  for(int i =7;i<data.length;i++){
+  //    String[] temp = split(data[i]," ");
+  //      wall.add(new Wall(column, row));
+  //      wall.get(index).x = int(temp[0]);
+  //      wall.get(index).y = int(temp[1]); 
+  //      index++;
+  //  }
+  //}
   
   void update(){
     for(Wall temp:wall){
@@ -236,18 +225,18 @@ class World{
       wall.draw();
     }
     
-    r.draw();
+    s.draw();
     
-    if(keyPressed&&robotDelay>maxRobotDelay){
-        input.robotMove(key,r);
-        robotDelay =0;
-        for(Wall tempWall:wall){
-          if(r.checkWall(tempWall)){r.bounce(key);}
-        }
-    }
-    robotDelay++;
+  //  if(keyPressed&&robotDelay>maxRobotDelay){
+  //      input.robotMove(key,r);
+  //      robotDelay =0;
+  //      for(Wall tempWall:wall){
+  //        if(r.checkWall(tempWall)){r.bounce(key);}
+  //      }
+  //  }
+  //  robotDelay++;
     
-    if(dist(r.x,r.y,t.x,t.y)==0){t.randomPosition();}
+  //  if(dist(r.x,r.y,t.x,t.y)==0){t.randomPosition();}
   }
 }
 
@@ -270,19 +259,38 @@ class InputProcessor{
   }
 }
 
-World w;
-void setup(){
-  size(600,600);
-  w = new World(6,6,5);
+class Snake{
+  int size;
+  ArrayList<Robot> snakes = new ArrayList<Robot>();
+  
+  Snake(int co, int ro){
+    size =4;
+    for(int i=0; i<size;i++){
+      snakes.add(new Robot(co,ro,width/(co*2)+(width/co*i),height/(ro*2)));
+    }
+    }
+  
+  void draw(){
+    for(Robot snake:snakes){
+      snake.draw();
+    }
+    
+  }
 }
 
+World w;
+String[] data;
+void setup(){
+  size(600,600);
+  data = loadStrings("world.txt");
+  w = new World(int(data[0]),int(data[1]),int(data[2]));
+}
 void draw(){
   background(0);
   w.update();
   w.draw();
 }
-
-void mouseClicked(){
-  if(dist(mouseX,mouseY,width-25,25)<20){w.saveWorld();}
-  if(dist(mouseX,mouseY,width-60,25)<12.5){w.loadWorld();}
-}
+//void mouseClicked(){
+//  if(dist(mouseX,mouseY,width-25,25)<20){w.saveWorld();}
+//  if(dist(mouseX,mouseY,width-60,25)<12.5){w.loadWorld();}
+//}
